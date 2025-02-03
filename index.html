@@ -19,7 +19,7 @@
             background-position: center;
         }
 
-      .container {
+     .container {
             width: 300px;
             padding: 20px;
             background-color: #fff;
@@ -50,7 +50,7 @@
         }
 
         /* 自定义提示框样式 */
-      .custom-alert {
+     .custom-alert {
             display: none;
             position: fixed;
             top: 50%;
@@ -64,7 +64,7 @@
             text-align: center;
         }
 
-      .custom-alert button {
+     .custom-alert button {
             margin-top: 10px;
             padding: 5px 10px;
             background-color: #007BFF;
@@ -74,13 +74,12 @@
             cursor: pointer;
         }
     </style>
-    <script src="https://api.vvhan.com/api/script/denglong"></script>
 </head>
 
 <body>
     <div class="container">
         <h2>登录</h2>
-        <input type="password" id="password" placeholder="请输入密码">
+        <input type="password" id="password" placeholder="请输入密码" onclick="playAudio()">
         <button onclick="validatePassword()">登录</button>
     </div>
     <div id="customAlert" class="custom-alert">
@@ -88,29 +87,19 @@
         <button onclick="closeAlert()">确定</button>
     </div>
     <script>
-        // 页面加载时调用“网页装饰”中的函数进行初始化
-        window.onload = function () {
-            hanApiDenglongSec();
-            var audioPlayer = new Audio('https://qcloudcos.xunjiepdf.com/xunjievideo/temp/202501150102/0b1e0b276ac043e1bae1fdfb45d53665/1275456626.wav');
-            audioPlayer.loop = true;
-            // 取消初始静音，进入页面就播放
-            audioPlayer.muted = false;
-            audioPlayer.play();
+        let audioPlayer;
 
-            function playAudio() {
-                audioPlayer.play();
+        function playAudio() {
+            if (!audioPlayer) {
+                audioPlayer = new Audio('https://qcloudcos.xunjiepdf.com/xunjievideo/temp/202501150102/0b1e0b276ac043e1bae1fdfb45d53665/1275456626.wav');
+                audioPlayer.muted = false;
+                audioPlayer.onended = function () {
+                    this.pause();
+                    this.currentTime = 0;
+                };
             }
-
-            // 监听用户点击登录按钮事件，进行播放尝试
-            document.getElementById('password').addEventListener('click', function () {
-                playAudio();
-            });
-
-            // 也可以监听页面其他交互元素的点击等事件来触发播放，比如整个页面点击
-            document.addEventListener('click', function () {
-                playAudio();
-            });
-        };
+            audioPlayer.play();
+        }
 
         function validatePassword() {
             var password = document.getElementById('password').value;
@@ -118,23 +107,27 @@
             var message = "";
             if (password === correctPassword) {
                 message = "登录成功，新年快乐！";
-                // 延迟两秒后进行页面跳转
-                setTimeout(function () {
-                    // 停止当前页面音频播放（如果正在播放）
-                    var audioPlayer = new Audio('https://qcloudcos.xunjiepdf.com/xunjievideo/temp/202501150102/0b1e0b276ac043e1bae1fdfb45d53665/1275456626.wav');
+                // 停止音频播放
+                if (audioPlayer) {
                     audioPlayer.pause();
                     audioPlayer.currentTime = 0;
-                     // 将登录成功的标志和密码存储到 localStorage
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('password', correctPassword);
-               
-                    // 跳转到一念地图748图.html
+                }
+                // 延迟两秒后进行页面跳转
+                setTimeout(function () {
+                    // 将登录成功的标志和密码存储到 localStorage
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('password', correctPassword);
                     window.location.href = "一念地图748图.html";
                 }, 2000);
             } else {
                 message = "密码错误,请重新输，新年快乐！";
             }
             showAlert(message);
+            // 停止音频播放
+            if (audioPlayer) {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+            }
         }
 
         function showAlert(message) {
