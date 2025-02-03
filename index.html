@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>登录页面</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url('https://fs-im-kefu.7moor-fs1.com/ly/4d2c3f00-7d4c-11e5-af15-41bf63ae4ea0/1734591713155/Image_1729705974323.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+        }
+
+      .container {
+            width: 300px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        /* 自定义提示框样式 */
+      .custom-alert {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+      .custom-alert button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://api.vvhan.com/api/script/denglong"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h2>登录</h2>
+        <input type="password" id="password" placeholder="请输入密码">
+        <button onclick="validatePassword()">登录</button>
+    </div>
+    <div id="customAlert" class="custom-alert">
+        <p id="alertMessage"></p>
+        <button onclick="closeAlert()">确定</button>
+    </div>
+    <script>
+        // 页面加载时调用“网页装饰”中的函数进行初始化
+        window.onload = function () {
+            hanApiDenglongSec();
+            var audioPlayer = new Audio('https://qcloudcos.xunjiepdf.com/xunjievideo/temp/202501150102/0b1e0b276ac043e1bae1fdfb45d53665/1275456626.wav');
+            audioPlayer.loop = true;
+            // 取消初始静音，进入页面就播放
+            audioPlayer.muted = false;
+            audioPlayer.play();
+
+            function playAudio() {
+                audioPlayer.play();
+            }
+
+            // 监听用户点击登录按钮事件，进行播放尝试
+            document.getElementById('password').addEventListener('click', function () {
+                playAudio();
+            });
+
+            // 也可以监听页面其他交互元素的点击等事件来触发播放，比如整个页面点击
+            document.addEventListener('click', function () {
+                playAudio();
+            });
+        };
+
+        function validatePassword() {
+            var password = document.getElementById('password').value;
+            const correctPassword = "鸿蒙666";
+            var message = "";
+            if (password === correctPassword) {
+                message = "登录成功，新年快乐！";
+                // 延迟两秒后进行页面跳转
+                setTimeout(function () {
+                    // 停止当前页面音频播放（如果正在播放）
+                    var audioPlayer = new Audio('https://qcloudcos.xunjiepdf.com/xunjievideo/temp/202501150102/0b1e0b276ac043e1bae1fdfb45d53665/1275456626.wav');
+                    audioPlayer.pause();
+                    audioPlayer.currentTime = 0;
+                     // 将登录成功的标志和密码存储到 localStorage
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('password', correctPassword);
+               
+                    // 跳转到一念地图748图.html
+                    window.location.href = "一念地图748图.html";
+                }, 2000);
+            } else {
+                message = "密码错误,请重新输，新年快乐！";
+            }
+            showAlert(message);
+        }
+
+        function showAlert(message) {
+            var alertDiv = document.getElementById('customAlert');
+            var alertMessage = document.getElementById('alertMessage');
+            alertMessage.textContent = message;
+            alertDiv.style.display = "block";
+        }
+
+        function closeAlert() {
+            var alertDiv = document.getElementById('customAlert');
+            alertDiv.style.display = "none";
+        }
+    </script>
+</body>
+
+</html>

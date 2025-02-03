@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>鸿蒙仙居</title>
+  <style>
+    img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      cursor: pointer;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+  .controls {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1;
+    }
+
+  .controls button {
+      margin-right: 5px;
+      padding: 5px 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <img id="image" src="https://fs-im-kefu.7moor-fs1.com/ly/4d2c3f00-7d4c-11e5-af15-41bf63ae4ea0/1738311501462/鸿蒙仙居-120250131_161720.png" alt="Image">
+
+  <div class="controls">
+    <button id="zoomInButton">+</button>
+    <button id="zoomOutButton">-</button>
+  </div>
+
+  <script>
+    const img = document.getElementById('image');
+    const zoomInButton = document.getElementById('zoomInButton');
+    const zoomOutButton = document.getElementById('zoomOutButton');
+
+    let currentScale = 1;
+
+    function zoomIn() {
+      currentScale = Math.min(2, currentScale * 1.2);
+      updateImageSize();
+    }
+
+    function zoomOut() {
+      currentScale = Math.max(0.5, currentScale * 0.8);
+      updateImageSize();
+    }
+
+    function updateImageSize() {
+      img.style.transform = `scale(${currentScale})`;
+      img.style.width = `${currentScale * 100}%`;
+      img.style.height = `${currentScale * 100}%`;
+      img.style.top = `${(1 - currentScale) / 2 * 100}%`;
+      img.style.left = `${(1 - currentScale) / 2 * 100}%`;
+    }
+
+    zoomInButton.addEventListener('click', zoomIn);
+    zoomOutButton.addEventListener('click', zoomOut);
+  </script>
+</body>
+
+</html>

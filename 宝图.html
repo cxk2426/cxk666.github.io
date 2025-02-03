@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh - CN">
+
+<head>
+    <meta charset="UTF - 8">
+    <meta name="viewport" content="width=device - width, initial - scale=1.0">
+    <title>藏宝地查找</title>
+    <style>
+        body {
+            font - family: Arial, sans - serif;
+            text - align: center;
+        }
+
+        #result {
+            margin - top: 20px;
+        }
+
+        select {
+            padding: 5px;
+            font - size: 16px;
+        }
+
+        /* 弹窗样式 */
+        #riddlePopup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background - color: rgba(0, 0, 0, 0.5);
+            z - index: 1;
+        }
+
+        #riddlePopupContent {
+            position: absolute;
+            background - color: white;
+            padding: 10px;
+            border - radius: 10px;
+            box - shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text - align: left;
+        }
+
+        #pagination {
+            margin - top: 10px;
+        }
+
+        #prevButton,
+        #nextButton,
+        #closeButton {
+            padding: 5px 10px;
+            margin: 0 5px;
+        }
+
+        #pageInfo {
+            margin - top: 10px;
+        }
+    </style>
+</head>
+
+<body style="background-color: #f0f0f0; background-image:url('https://fs-im-kefu.7moor-fs1.com/ly/4d2c3f00-7d4c-11e5-af15-41bf63ae4ea0/1734591713155/Image_1729705974323.jpg'); background - repeat: no - repeat; background - size: cover;">
+    <h1>藏宝地查找</h1>
+    <div id="inputArea">
+        <input type="text" id="inputText" placeholder="请输入描述信息">
+        <button onclick="findLocation()">查找</button>
+    </div>
+    <button id="riddleButton" onclick="showRiddlePopup()">谜底看谜题</button>
+    <div id="result"></div>
+
+    <!-- 弹窗结构 -->
+    <div id="riddlePopup">
+        <div id="riddlePopupContent">
+            <p id="riddleText"></p>
+            <div id="pagination">
+                <button id="prevButton" onclick="prevPage()">上一页</button>
+                <button id="nextButton" onclick="nextPage()">下一页</button>
+                <button id="closeButton" onclick="hideRiddlePopup()">关闭</button>
+            </div>
+            <div id="pageInfo"></div>
+        </div>
+    </div>
+
+    <script>
+        const locations = {"初闻它时，传言说在玉色光辉洒落之地，有华彩瑞光若隐若现。此地藏于云雾深处，常伴有仙乐阵阵，可当你寻着乐声靠近，它却又似幻梦般难觅踪迹。": "玉华秘境",
+            "霜雪源头风作客，寒芒之地水成歌。幽冷路径藏奥秘，极寒之处寻线索 。此地有奇景，冰冷凝万物": "寒冰峡谷",
+            "此地常闻喊杀声如雷鼓。平日寂静似藏无尽奥秘，一旦开启便有争斗涌起。众人皆在此处展其技艺，挥洒汗水为把荣耀来取。周围符文闪烁灵气四溢": "宗门比武场",
+            "幻域之中光流窜，铁鸟穿梭云雾间。巨厦如林耸霄汉，仙车粼粼声不断。昼夜华光不曾暗，灵音袅袅八方传": "现代城市",
+            "九霄之上寻仙途，玄色光芒引前路。天间灵韵藏妙处，圣影仙姿此中浮。域内风云皆入目": "玄天圣域",
+            "暗夜妖风舞，幽影潜踪处。溪流藏险地，涧水隐迷雾。": "黑风涧",
+            "云雾深处寻仙踪，不见路径觅影踪。灵风轻拂迷方向，此境难寻名未逢 ": "未知之地",
+            "有一处灵地，那是天地灵气汇聚之所。此地有潺潺之声，似在诉说着古老的修仙奥秘；其周围灵气氤氲，仿若能滋养万物生灵。更有奇异光芒，若隐若现，仿佛在指引着有缘之人探寻那超凡的机缘。此地的灵气仿若有生命一般，源源不断，生生不息，仿佛是上天恩赐给修仙者的珍贵宝藏。": "荒漠绿洲",
+            "在那缥缈仙域之中，有一处神秘所在。此处在南方，有烈焰灼灼，似要焚尽天地，那火焰中仿佛藏着无尽的奥秘与力量。而这神秘之地，又似天宫般宏伟壮丽，仙韵流转，诸多超凡宝物、奇珍异术皆隐匿其中。": "南焰天宫",
+            "朝起之时，阳光洒落水面，波光粼粼间似有仙光闪烁指引前路；日暮之际，余晖映照，如梦似幻仿若轻纱笼罩。此地周围云雾常聚，雾气散开时仿若有仙宫隐隐浮现。风起云涌间，它好似随波飘动，又似被无形之力牵引，行踪不定难寻其踪。在那岁月长河里，诸多修仙者为寻它耗费心血，它就隐匿在这茫茫天地间，等待有缘人去揭开它神秘的面纱 ": "浮光岛",
+            "在那云雾缥缈处，有一处神秘所在。此地两边高耸似龙身蜿蜒盘踞，中间通路仿若龙嘴微张，似在吞吐天地灵气。关卡威严，过往修仙者若要通过，需历经重重考验，仿若越过龙门方可鱼跃化龙，得享进阶机缘。": "龙门关",
+            "有一处所在，水波荡漾，清风徐来，似有灵韵潜藏其间。那是舟楫常行之处，亦是鱼儿嬉戏之域。远看，雾气氤氲，仿若仙境；近观，波光粼粼，灵气若隐若现。此处可闻渔歌互答，亦可见帆影点点。": "江上",
+            "灵动之气，无形穿梭，山川皆动它先行。岚雾缭绕，隐匿真容，神秘幽境它相伴。天涯辽远，无尽边际，寻道之路它指引。此般意象，合而为一，方能寻得隐秘处。": "风岚天涯",
+            "在那浩渺仙途间，有处神秘之境。往昔繁华皆成空，记忆消散影无踪。旧痕新迹皆难觅，踏入此境梦亦蒙。往日恩怨皆隐没，似被仙法抹尘封。": "遗忘之地",
+            "在那阴阳交汇之处，有片暗黑之地。踏入此地，不见阳光，阴森寒意侵骨，四周弥漫着诡异之气，仿佛踏入了另一个与阳世截然不同的境域，好似连通了阴曹地府的神秘入口 ": "幽冥洞",
+            "青空之下彩练舞，霞光漫洒映仙途。平野无垠藏妙境，原上灵花绽锦簇 ": "青霞平原",
+            "仙山有处非凡地，朝迎旭光暮披霓。云间独顶耀金芒，驱散暗夜阴霾息 ": "光明顶",
+            "星芒隐处灵风绕，万界交织路迢迢。战火纷争皆幻相，破境历练此中邀 ": "诸天试炼场",
+            "夜幕垂空繁星照，神秘之地隐九霄。幽光一点遥难触，踏入此境机缘飘。其处不与凡界同，灵机暗涌藏奇奥": "玄星秘岛",
+            "在那遥远神秘的灵幻之地，有一处奇异之景。时光的长河在此处仿佛不再遵循常理流淌，它被某种神秘力量束缚，呈现出奇妙模样。它不似奔腾江河一往无前，也非静止湖面毫无波澜。时而似灵动清风，环绕在古老仙山的四周；时而如缥缈云雾，隐匿于幽深山谷之间。看似无形无色，却又带着岁月的厚重质感。当你凝神细察，能发现它在默默流转，仿若有着自己的意志。它见证过仙人的飞升，目睹过仙门的兴衰，在无尽岁月里，始终以独特姿态存在。": "旋转的时间流沙",
+            "清风拂处仙影藏，碧草幽径通何方。星辰照落寻不见，唯余灵气绕此疆 ": "居所门外",
+            "炎龙怒舞燃天际，火浪翻涌漫无边。此地不见青翠绿，唯留焦土向苍玄 ": "焚天荒原",
+            "朝起暮落时光藏，雨滴洒落韵悠长。山川深幽隐佳境，谷中灵蕴漫芬芳 ": "时雨幽谷",
+            "东方灵韵隐仙踪，水泽灵波映碧空。龙影潜藏祥瑞绕，此处仙源觅真容 ": "青龙潭",
+            "玉颜绽处香风漫，兰韵幽幽意自闲。瑶影浮空仙梦绕，岛中灵景待君探。": "玉兰瑶岛",
+            "世间万民所居处，不在九天云霄路。大地承载千万户，生机漫野藏妙处 ": "苍生之地",
+            "有处所在，无古无今岁月流，无东无西方向悠。世人皆未踏足过，灵机隐在混沌留。": "未知之地",
+            "在那久远鸿蒙始，混沌初开有其地。先于诸世已存矣，万灵源起在此里。岁月长河它隐匿，神秘气息难尽悉。问道仙途寻秘地，此处开启传奇序 ": "太初古界",
+            "在那山川隐秘处，阴阳交汇有奇处。水绕青山雾轻舞，星辰微光引前路。四季花香常满谷，岁月无痕灵影浮。寻得此处仙缘注，问道长生有通途 ": "灵脉所在之地",
+            "东岳极巅瑞光绕，仙云漫卷灵韵飘。风抚神阶通妙境，此处可把日月邀 ": "泰山顶",
+            "迷雾漫处幻影浮，太虚之象隐云途。仙梦缥缈此间绕，尘世难寻此幻庐 ": "太虚幻境",
+            "日出之时，第一缕金芒最先倾洒，似是天光眷恋，将此地照亮。山巅之上，光辉常驻，驱散一切黑暗幽影，仿若与那混沌划清界限。四方纷争，诸多门派都为它目光齐聚，皆因它承载着独特的意义。": "光明顶",
+            "暖霭轻拂自南来，仙踪隐处谷中埋。风动灵花千万朵，此处曾迎仙人宅 ": "南风仙谷",
+            "宝光隐现灵山间，金芒银辉映碧川。仙岛藏珍待君探，寻得此处乐无边 ": "金银岛",
+            "幽秘之地静无言，灵气氤氲漫其间。闭关修法寻真意，静悟大道岁月绵 ": "修炼室",
+            "在那茫茫沧海间，有处奇境难寻见。云雾深处藏神秘，仙光隐隐映天边。传闻此山多灵物，引得众仙常留恋。八方仙灵皆向往，问道途中梦魂牵 ": "蓬莱仙山",
+            "岁月刻痕地，往昔故事存。幽秘藏灵处，静候有缘人 。于山林幽深处寻那被遗忘之径，沿着往昔痕迹，踏过斑驳岁月，在寂静之地，有神秘气息流转。": "古老洞窟",
+            "灵云深处隐奇地，古龙往昔常游弋。山峦叠翠藏秘辛，风动影绰似神邸 ": "龙影山脉",
+            "寻它需观星辰之妙，当夜幕星河璀璨，有三颗亮星成奇特三角，其连线延长交汇之所，便是方向的指引。它藏于云雾深深之处，四周常伴奇异光影闪烁。传说，曾有古老的仙门在此留下过无上传承，可时光流转，如今只见一片空灵寂静。每当有清风拂过，似乎还能听见往昔仙门论道的悠悠余音。其名之中，“神秘”之感尽显，又似一方悬空之境，超脱尘世。": "神秘空岛",
+            "在那古老传说里，曾有巨物横空，气吞万里山河，其身形遮天蔽日，吼声震破云霄。岁月流转，它的辉煌不再，只留下往昔战场，在那荒僻之地，残垣断壁间灵气仍隐隐流转，仿若还能听见当年厮杀之声，此地见证了往昔的无上荣耀与壮烈悲歌 ": "龙骨遗迹",
+            "云间秘地寻无踪，往昔仙光影朦胧。风抚灵痕藏妙处，破雾方临奇异中。": "仙界遗迹内部",
+            "朝起光芒破夜茫，此地灵韵漫八方。星河隐退迎初亮，踏入此域绽辉光 ": "曦光之境",
+            "在那朝晨之光始照处，波澜之音常传途。寻那光与浪的归宿，仙途神秘地在此浮出。": "曦澜海域",
+            "在那缥缈仙山处，风抚铃音传妙趣。白云铺就前行路，此径通幽藏仙寓 ": "风铃云径",
+            "九霄之上再寻高，云外有境路迢迢。超脱凡俗觅真妙，此处风光最逍遥 ": "天外天",
+            "太古之初韵藏秘，混沌初开影中觅。浩渺无垠包万象，诸般起源在此里 ": "鸿蒙宇宙",
+            "仙门之中寻一处，四方开阔纳灵气。晨迎朝晖暮接霞，众人汇聚论道地 ": "宗门广场",
+            "仙山静处墨香绕，万卷灵章岁月遥。密典珍籍皆汇聚，求知问道此中找 ": "宗门藏书阁",
+            "在那遥远神秘之境，有处灵地闪耀光辉熠熠。四围仙雾常缭绕，岁月隐匿诸多奥秘。中央有物最为奇，能引灵力如潮涌来急。它是灵韵汇聚核心地，守护着修仙界的无上契机 ": "圣地之心",
+            "往昔岁月尘烟绕，旧迹深藏岁月遥。古音残韵风中飘，探寻之地险中妙。往昔传说今犹晓，其处藏秘不可描。风抚荒苔寻幽道，此地踪迹少人到": "远古遗迹深处",
+            "朝起暮落星辰换，四季更迭花又残。此地无形却有韵，岁月藏影梦犹酣 ": "时光流转之地",
+            "朝时繁花盛，暮间叶飘零，似有灵韵暗中行。四季瞬息过，昼夜瞬间更，此地藏着岁月的影。星辰移位急，日月交替频，仿若时光有灵在奔命": "时光流转之地",
+            "霜华漫卷万里埃，素色无垠净世开。冷光凝处星芒淡，仙踪隐没此中来 。猜一个地方": "银白雪原",
+            "林间微光颤，烛火隐其间。清风常相伴，神秘意绵绵。此地藏玄机，寻路莫等闲。": "风烛之森",
+            "岁月尘封处，往昔韵犹存。灵息暗暗绕，遗迹静静陈。此地少人至，往昔多纷纭。机缘藏深处，等待有缘人。": "古老秘境",
+            "岁月尘封古老地，往昔繁华已隐匿。先辈踪迹留于此，灵气暗涌藏神秘。此地久在时光里，风云变幻它静立。千年秘密待开启，寻它需把机缘觅 ": "太古遗迹",
+            "在那灵雾深深之处有处神秘所在。地底幽光隐隐，似藏无尽玄奇。历经千年岁月，灵气凝于其间。坚硬质地非凡，能助法宝非凡。寻此需探深山，幽秘之处可觅。": "玄铁矿脉",
+            "踏入此间迷难休，云雾幻景无尽头。虚实交错难分辨，踏入便陷无止流 ": "无尽幻境",
+            "九霄之上怒龙吼，银蛇乱舞破重幽。此地常闻轰鸣响，灵气汇聚险中求。": "雷霆峰",
+            "九霄之上悬银河，水倾之处灵韵多。崖边仙雾常缭绕，此处宝地待君捉 ": "天瀑灵崖",
+            "在那仙途奇幻处，有地狐灵常眷顾。红妆盛景声名著，万载传说源此驻。": "涂山",
+            "电芒闪烁影幢幢，泽畔灵波映天光。原上风云藏妙意，仙途此处有玄章 ": "雷泽原",
+            "迷雾深锁难见真颜，灵机隐匿似藏天边。非寻常灵力可探其玄，不见光影却蕴非凡。此境处于混沌幽渊，无形之力暗中周旋。诸般法则在此似迷乱，探寻真相仿若雾里观。": "暗物质核心区域",
+            "在那岁月长河隐匿之处，有地被时光的纱幕轻覆。曾历辉煌却悄然隐入虚无，残垣诉说往昔的壮丽宏图。古老符文闪烁神秘纹路，灵气虽淡仍藏旧日温度。传说之地静卧岁月深处，等待有缘人将其秘密解读。": "远古遗迹",
+            "在那浩渺东海之畔，有处神秘地儿。传闻中，云雾常年缭绕难见真颜,仿若轻纱掩绝世容颜。那儿有灵鸟盘旋，鸣声似传千古之秘;仙花绽放，香气能涤尘世纷扰。更有灵泉涌动，波光闪烁间似藏无尽机缘，踏入此地者，仿若能超脱凡俗，寻得长生妙途。": "蓬莱仙山",
+            "仙宫灵水绕奇景，王母常临此妙境。鹤舞云间祥瑞聚，如梦之地觅安宁 ": "瑶池仙境",
+            "百草繁茂似海，灵气四溢如缕。谷中隐着神秘，妙药处处可寻。若想求得长生，此处定要探寻。": "灵药谷",
+            "在那茫茫修仙界，有一处神秘所在。传闻中，此地藏于极阴之地，四周常年被墨色迷雾笼罩，不见天光。踏入其中，寒意侵体，仿若灵魂都要被冻结。上空阴云密布，时有诡异声响传来，仿若九幽恶鬼的哭嚎。此地深处，有奇异之力流转，寻常法宝入内便会失去效用。其方位隐秘难寻，在诸多古籍残卷中也只是略有记载。曾有修仙者追寻线索，历经艰辛，从古老阵法的纹路里、失传秘籍的只言片语中探寻它的踪迹。若要找寻它，需沿着灵河逆流而上，绕过三重险滩，在那星辰移位、月隐之时，寻得一片散发幽冷气息的空域，那里便是它所在之处。 ": "九幽渊",
+            "极寒之地雪漫空，烈焰隐现雾色浓。绝境险处寻机缘，此地名号藏其中 ": "冰焰绝地",
+            "碧水之间花影摇，青颜不染俗尘嚣。灵泽漫处星芒绕，仙客寻踪此中飘 ": "青莲池",
+            "世间有处奇异所，黑白交织影模糊。光暗共融藏妙意，生死流转韵难书。此中之地蕴玄机，道途必经觅真如。": "阴阳道场",
+            "有处奇境很神秘，霭霭雾气常迷离。林深叶茂掩路径，踏入仿若梦难离。灵禽异兽藏身影，仙药仙草隐幽僻。": "迷雾森林",
+            "在那云雾缥缈间，有处险地藏机缘。风卷雷音惊宿鸟，突破桎梏在此巅。": "渡劫峰",
+            "云巅之上瑞光藏，仙音袅袅绕峦冈。古碑刻字寻真意，此地曾迎超凡光 ": "神灵降临之地",
+            "寒域之中景奇异，银装素裹无人至。风起时似仙音绕，霜华铺就万重势。此境藏于天地间，灵冷之地寻真知。 ": "冰雪山脉",
+            "在云雾缥缈之处，有片神秘之地。那儿有不老的神木，流淌着能洗髓伐毛的灵泉。听闻在破晓的第一缕金光照耀时，能看见亭台楼阁若隐若现，似有仙人踏光而来。此地承载着千年岁月，历经无数风云变幻，却始终如世外桃源般超脱尘世。": "古代仙境",
+            "那处所在暗无光，阴森寒意漫四方。冤魂厉魄常游荡，邪雾笼罩路迷茫。生魂到此心惶惶，阴司气息漫回廊。": "幽冥鬼域",
+            "相思落下玉珠连，水畔悄洒情绵绵": "泪洒小河边",
+            "九霄之上雷影现，八方灵气此中缠。一处高台迎劫地，仙途险处勇登攀 ": "天雷台",
+            "天际绽华芒，赤焰映穹苍。群峰皆染彩，霭雾绕峦长。": "光焰群岚",
+            "暮云染赤处，霞影漫山川。清风拂幽径，灵花统此间。谷中藏妙境，仙韵绕干年。": "落霞谷",
+            "大地怒时它开颜，浓烟滚滚冲九天。炎浪翻涌金乌惧，炽热之处寻机缘 。": "火山口",
+            "天南有灵地，玄光隐其中。龙影常浮现，水潭蕴仙踪。": "南玄龙潭",
+            "浮世繁华梦千重，情丝缠绕意无穷。仙途遥望寻真念，此中滋味似何踪 。": "人间意",
+            "有一处神秘之地，那里远离尘世喧嚣，常人难寻其踪。四周寂静无声，唯有风声呼啸而过，似在诉说着古老的秘密。此处在群山之外，远离繁华之所，罕有人烟涉足。山间迷雾缭绕，仿若隐藏着无尽的玄机。而那神秘之地，便隐匿于这看似无边无际的寂静之中，需穿越重重险阻，历经艰难，方能寻得。": "荒野深处",
+            "翠影藏幽处，香风引径深。灵音环碧谷，仙韵绕花林": "花灵仙谷",
+            "赤霞难比此中妙，霞光藏韵隐仙寮。洞幽径曲灵氛绕，天阙瑶台梦里邀 。": "紫霞洞天",
+            "在那缥缈仙途之中，有一处神秘所在。心若初开情意在，好似星辰映心怀。动如清风拂柳来，恰似灵韵破雾霭。天上宫阙彩云排，琼楼玉宇惹人猜。仙途漫漫寻真意，此处妙境等你来。你且猜猜这是何处妙地": "心动天宫",
+            "幽径入翠峦，光影交错间。清风引前路，声传隐隐间。灵鸟绕不去，迷雾藏真颜。寻那妙境地，源起静中源 ": "山洞深处",
+            "幻景虚浮似真境，身入其中难分清。仙宫楼宇凭空现，转瞬消散影无形。不知身在何去处，醒时方觉一切空 。": "梦境",
+            "南方星辰引前路，玄机暗藏雾迷离。玄冥之气隐其中，潭水幽深映天碧。蛟龙曾居留灵韵，探寻此处觅仙迹 。": "南玄龙潭",
+            "往昔龙尊傲九天，力竭身陨化山川。残垣秘处藏旧影，灵韵遗风在此间 。": "龙骨遗迹",
+            "翠影连绵掩幽径，鸟鸣声稀韵难寻。清风徐来雾霭绕，仙踪隐匿在何境": "深山之中",
+            "在那鸿蒙初开之地，有一处神秘所在。深处黑暗隐匿，却牵系天地灵机。风暴与漩涡常伴，无尽神秘藏底。传说往昔岁月，诸多秘密沉于此间。它联通四海，却又似有独特轨迹。这神秘之地，何处寻它踪迹": "归墟海眼",
+            "霜华洒落映幽光，冷意沉沉韵里藏。白絮纷飞波上覆，银芒隐隐水中彰。": "银白寒潭", 
+            "残魂飘荡处，此地名不虚。崖边风泣夜，踏足心忧惧。过往英烈殇，怨气久难除。问君知何地，危险暗藏伏 。 ": "断魂崖",
+            "在那九霄之下，有处神秘之地。碧水环绕藏灵机，巨石碑林刻往昔。古老纹路藏奥秘，威压阵阵惊灵羽。此处曾诞惊天力，万载岁月掩踪迹。": "龙族圣地",
+            "恶念汇聚暗潮涌，凶煞盘踞雾霭浓。黑水翻波藏险地，邪芒隐现危险重 。此岛不归正道管，罪孽滋生在其中。": ["武当山", "魔渊岛"],
+     };
+        let currentPage = 1;
+        const riddlesPerPage = 5;
+
+        function findLocation() {
+            const inputText = document.getElementById('inputText').value;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            if (inputText === '') {
+                const select = document.createElement('select');
+                for (const [riddle, location] of Object.entries(locations)) {
+                    const option = document.createElement('option');
+                    option.value = location;
+                    option.textContent = location;
+                    select.appendChild(option);
+                }
+                select.addEventListener('change', function () {
+                    const selectedLocation = this.value;
+                    window.location.href = `一念地图748图.html?location=${encodeURIComponent(selectedLocation)}`;
+                });
+                resultDiv.appendChild(select);
+            } else {
+                const filteredLocations = Object.entries(locations).filter(([description, _]) =>
+                    description.includes(inputText)
+                );
+                if (filteredLocations.length > 0) {
+                    let resultHTML = '';
+                    filteredLocations.forEach(([, location]) => {
+                        resultHTML += `<a href="#" style="color: blue; text - decoration: underline;" onclick="sendLocationToLocalStorage('${location}')">${location}</a> `;
+                    });
+                    resultDiv.innerHTML = `匹配的地图是：${resultHTML}`;
+                } else {
+                    resultDiv.textContent = '未找到匹配的地图';
+                }
+            }
+        }
+
+        function sendLocationToLocalStorage(location) {
+            const url = `一念地图718图自用.html?location=${encodeURIComponent(location)}`;
+            window.location.href = url;
+        }
+
+        function showRiddlePopup() {
+            const riddlePopup = document.getElementById('riddlePopup');
+            const riddleButton = document.getElementById('riddleButton');
+            const riddlePopupContent = document.getElementById('riddlePopupContent');
+            const rect = riddleButton.getBoundingClientRect();
+            riddlePopupContent.style.top = rect.bottom + 'px';
+            riddlePopupContent.style.left = rect.left + 'px';
+            riddlePopup.style.display = 'block';
+            const inputText = document.getElementById('inputText').value;
+            const riddleText = document.getElementById('riddleText');
+            const pageInfo = document.getElementById('pageInfo');
+
+            if (inputText === '') {
+                currentPage = 1;
+                const allRiddles = Object.entries(locations);
+                const totalPages = Math.ceil(allRiddles.length / riddlesPerPage);
+                updatePageInfo(totalPages);
+                displayRiddles(totalPages);
+            } else {
+                const foundRiddle = Object.keys(locations).find(key => locations[key] === inputText);
+                if (foundRiddle) {
+                    riddleText.textContent = `谜题: ${foundRiddle}`;
+                } else {
+                    riddleText.textContent = '未找到对应的谜题';
+                }
+                pageInfo.textContent = '';
+            }
+        }
+
+        function hideRiddlePopup() {
+            const riddlePopup = document.getElementById('riddlePopup');
+            riddlePopup.style.display = 'none';
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                const allRiddles = Object.entries(locations);
+                const totalPages = Math.ceil(allRiddles.length / riddlesPerPage);
+                displayRiddles(totalPages);
+            }
+        }
+
+        function nextPage() {
+            const allRiddles = Object.entries(locations);
+            const totalPages = Math.ceil(allRiddles.length / riddlesPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayRiddles(totalPages);
+            }
+        }
+
+        function displayRiddles(totalPages) {
+            const allRiddles = Object.entries(locations);
+            const start = (currentPage - 1) * riddlesPerPage;
+            const end = start + riddlesPerPage;
+            const riddleText = document.getElementById('riddleText');
+            let riddleHTML = '';
+            for (let i = start; i < end && i < allRiddles.length; i++) {
+                const [riddle, answer] = allRiddles[i];
+                riddleHTML += `<p>谜题: ${riddle} <br> 谜底: ${answer}</p>`;
+            }
+            riddleText.innerHTML = riddleHTML;
+            const prevButton = document.getElementById('prevButton');
+            const nextButton = document.getElementById('nextButton');
+            prevButton.disabled = currentPage === 1;
+            nextButton.disabled = currentPage === totalPages;
+            updatePageInfo(totalPages);
+        }
+
+        function updatePageInfo(totalPages) {
+            const pageInfo = document.getElementById('pageInfo');
+            pageInfo.textContent = `共 ${totalPages} 页，当前第 ${currentPage} 页`;
+        }
+    </script>
+</body>
+
+</html>
