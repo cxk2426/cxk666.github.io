@@ -106,7 +106,7 @@
             const correctPassword = "ikun";
             var message = "";
             if (password === correctPassword) {
-                message = "登录成功，新年快乐！";
+                message = "登录成功，欢迎使用！";
                 // 停止音频播放
                 if (audioPlayer) {
                     audioPlayer.pause();
@@ -117,10 +117,10 @@
                     // 将登录成功的标志和密码存储到 localStorage
                     localStorage.setItem('isLoggedIn', 'true');
                     localStorage.setItem('password', correctPassword);
-                    window.location.href = "一念地图814图.html";
+                    window.location.href = "一念地图858图.html";
                 }, 2000);
             } else {
-                message = "密码错误,请重新输，新年快乐！";
+                message = "密码错误，请重新输，欢迎使用！";
             }
             showAlert(message);
             // 停止音频播放
