@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>登录页面</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <style>
+        /* 全局样式（已整合原样式） */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: url('https://fs-im-kefu.7moor-fs1.com/ly/4d2c3f00-7d4c-11e5-af15-41bf63ae4ea0/1734591713155/Image_1729705974323.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+       .container {
+            width: 300px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        input[type="password"] {
+            width: 92%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+       .custom-alert {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+       .top-left-button,
+       .top-middle-button,
+       .top-right-button {
+            background-color: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            position: absolute;
+            padding: 10px;
+            opacity: 0;
+        }
+
+       .top-left-button { top: 10px; left: 10px; }
+       .top-middle-button { top: 10px; left: 50%; transform: translateX(-50%); }
+       .top-right-button { top: 10px; right: 10px; }
+
+       .author-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        /* 赞助相关样式 */
+       .sponsor-button {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.7);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 100;
+        }
+/* 新增的样式代码（建议添加到CSS样式部分） */
+.sponsor-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.sponsor-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+    background-color: #f0f0f0;
+}
+
+.sponsor-info {
+    flex-grow: 1;
+}
+
+.sponsor-nickname {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.sponsor-account {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 3px;
+}
+
+.sponsor-amount {
+    font-size: 14px;
+    color: #ff6b6b;
+    font-weight: 500;
+}
+
+.sponsor-list li:last-child {
+    border-bottom: none;
+}
+
+       .sponsor-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            z-index: 1001;
+        }
+
+       .sponsor-popup h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007BFF;
+        }
+
+       .sponsor-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+       .sponsor-list li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+       .sponsor-list li:last-child { border-bottom: none; }
+       .close-sponsor { position: absolute; top: 10px; right: 10px; font-size: 20px; }
+    </style>
+</head>
+
+<body>
+    <!-- 赞助按钮 -->
+    <button class="sponsor-button" onclick="showSponsors()">查看赞助名单</button>
+
+<!-- 赞助名单弹窗 -->
+<div class="sponsor-popup" id="sponsorPopup">
+    <button class="close-sponsor" onclick="hideSponsors()">×</button>
+    <ul class="sponsor-list">
+        <!-- 单个赞助条目示例，可复制后修改内容 -->
+         <li>
+            <div class="sponsor-item">
+                <img src="https://q.qlogo.cn/headimg_dl?dst_uin=532591605&spec=640" alt="头像" class="sponsor-avatar">
+                <div class="sponsor-info">
+                    <div class="sponsor-nickname">S先生</div>
+                    <div class="sponsor-account">账号：69*****</div>
+                    <div class="sponsor-amount">¥30</div>
+                </div>
+            </div>
+        </li>
+        <li>
+            <div class="sponsor-item">
+                <img src="https://q.qlogo.cn/headimg_dl?dst_uin=3210635812&spec=640" alt="头像" class="sponsor-avatar">
+                <div class="sponsor-info">
+                    <div class="sponsor-nickname">。</div>
+                    <div class="sponsor-account">账号：32*****2</div>
+                    <div class="sponsor-amount">¥7.29</div>
+                </div>
+            </div>
+        </li> 
+          <li>
+            <div class="sponsor-item">
+                <img src="https://q.qlogo.cn/headimg_dl?dst_uin=2647682805&spec=640" alt="头像" class="sponsor-avatar">
+                <div class="sponsor-info">
+                    <div class="sponsor-nickname">anzhuo</div>
+                    <div class="sponsor-account">账号：26*****5</div>
+                    <div class="sponsor-amount">¥2</div>
+                </div>
+            </div>
+        </li>           
+    </ul>
+</div>
+
+
+    <!-- 登录容器 -->
+    <div class="container">
+        <h2>登录</h2>
+        <input type="password" id="password" placeholder="请输入密码" onclick="playAudio()">
+        <button onclick="validatePassword()">登录</button>
+    </div>
+
+    <!-- 提示框 -->
+    <div id="customAlert" class="custom-alert">
+        <p id="alertMessage"></p>
+        <button onclick="closeAlert()">确定</button>
+    </div>
+
+    <!-- 顶部功能按钮（透明度默认0，需配合JS显示） -->
+    <button class="top-left-button" onclick="openPage('一念地图处理.html')">左边</button>
+    <button class="top-middle-button" onclick="openPage('做一念图片.html')">中间</button>
+    <button class="top-right-button" onclick="openPage('复制描述.html')">右边</button>
+
+    <!-- 作者信息弹窗（页面加载时创建） -->
+    <script>
+        let audioPlayer;
+        let isFetching = false;
+
+        // 音频播放函数
+async function playAudio() {
+    if (isFetching) return;
+    try {
+        isFetching = true;
+        const audioUrl = 'https://api.suyanw.cn/api/wyrp.php?type=mp3';
+        if (audioPlayer) {
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+        }
+        audioPlayer = new Audio(audioUrl);
+        audioPlayer.muted = false;
+        await audioPlayer.play().catch(e => console.error("Audio play failed:", e));
+    } catch (error) {
+        console.error("Error playing music:", error);
+        showAlert("音乐加载失败，请重试");
+    } finally {
+        isFetching = false;
+    }
+}
+
+        // 密码验证函数
+        function validatePassword() {
+            const password = document.getElementById('password').value;
+            const correctPassword = "ikun";
+            let message = password === correctPassword ? 
+                "登录成功，欢迎使用！" : 
+                "密码错误，请重新输入";
+            
+            showAlert(message);
+            
+            // 登录成功逻辑
+            if (message.includes("成功")) {
+                if (audioPlayer) audioPlayer.pause();
+                setTimeout(() => {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('password', correctPassword);
+                    window.location.href = "一念地图.html";
+                }, 2000);
+            }
+        }
+
+        // 提示框操作函数
+        function showAlert(message) {
+            const alertDiv = document.getElementById('customAlert');
+            const alertMessage = document.getElementById('alertMessage');
+            alertMessage.textContent = message;
+            alertDiv.style.display = "block";
+        }
+        function closeAlert() {
+            document.getElementById('customAlert').style.display = "none";
+        }
+
+        // 页面跳转函数
+        function openPage(pageUrl) {
+            window.location.href = pageUrl;
+        }
+
+        // 赞助弹窗操作函数
+        function showSponsors() {
+            document.getElementById('sponsorPopup').style.display = 'block';
+        }
+        function hideSponsors() {
+            document.getElementById('sponsorPopup').style.display = 'none';
+        }
+
+        // 页面加载时创建作者弹窗
+        window.onload = function () {
+            const authorPopup = document.createElement('div');
+            authorPopup.className = 'author-popup';
+            authorPopup.innerHTML = `
+                <p>作者昵称：茉莉奶绿<br>QQ：2455679821<br><small>提示：点击可关闭</small></p>
+            `;
+            authorPopup.onclick = () => authorPopup.remove();
+            document.body.appendChild(authorPopup);
+        };
+    </script>
+</body>
+
+</html>
